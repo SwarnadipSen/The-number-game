@@ -1,0 +1,20 @@
+
+
+.navber-container {
+    height: 60px;
+    width: 100vw;
+    background-color: #212121;
+    box-shadow: 0 2px 4px rgb(0, 0, 0);
+    display: flex;
+}
+
+.navber-container p{
+    font-family: "Roboto Mono", monospace;
+    font-size: 20px;
+    font-weight: 400;
+    flex: 1;
+    text-transform: uppercase;
+    color: white;
+    margin: auto;
+    padding-left: 15px;
+}
