@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import Axios from "axios";
 import "./css/main.css";
 
 const Main = () => {
@@ -7,11 +8,13 @@ const Main = () => {
   const [showNumber, setShowNumber] = useState(0);
   const [lvalue, setLvalue] = useState(10);
 
-  const [loadingber, setLoadingber] = useState(false);
-  const [input_num, setInput_num] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [inputNum, setInputNum] = useState("");
 
-  const [guessMode, setGuessmode] = useState(false);
-  const [gameover, setGameover] = useState(false);
+  const [guessMode, setGuessMode] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+
+  const [score, setScore] = useState(0); 
 
   const inputRef = useRef(null);
 
@@ -22,80 +25,95 @@ const Main = () => {
   }, [guessMode]);
 
   const handleClick = () => {
-    setGuessmode(false);
+    setGuessMode(false);
     setAnimate(true);
     setGameStart(true);
-    setLoadingber(true);
-    setShowNumber(random_num(lvalue));
+    setLoading(true);
+    setShowNumber(generateRandomNumber(lvalue));
 
     setTimeout(() => {
       setAnimate(false);
-      setLoadingber(false);
-      setGuessmode(true);
+      setLoading(false);
+      setGuessMode(true);
     }, 5000);
   };
 
-  function random_num(lvalue) {
-    const r = Math.round(Math.random() * lvalue);
+  const generateRandomNumber = (lvalue) => {
+    const r = Math.floor(Math.random() * lvalue);
     if (r < lvalue / 10 || r === lvalue) {
-      return random_num(lvalue);
+      return generateRandomNumber(lvalue);
     }
     setLvalue(lvalue * 10);
     return r;
-  }
+  };
 
   const handleNewNumberClick = () => {
-    if (input_num) {
-      if (parseInt(input_num) === showNumber) {
-        setInput_num("");
-        setShowNumber(random_num(lvalue));
+    if (inputNum) {
+      if (parseInt(inputNum) === showNumber) {
+        setInputNum("");
+        setShowNumber(generateRandomNumber(lvalue));
         handleClick();
       } else {
-        setGameover(true);
-        setGuessmode(false);
-        setTimeout(() => {}, 3000);
+        const Score = showNumber.toString().length - 1;
+        setScore(Score);
+        setGameOver(true);
+        setGuessMode(false);
+        postScore(Score);
+        // setTimeout(() => {}, 3000);
       }
     }
   };
 
-  const restart_game = () => {
-    setGameover(false);
-    setLvalue(10);
-    setGameStart(false);
-    setGuessmode(false);
-    setInput_num("");
+  const postScore = async (Score) => {
+    try {
+      const response = await Axios.post('http://localhost:4000/api/addscore', {
+        username: "Anonymous", 
+        points: Score,
+      }, { withCredentials: true });
+      console.log("Score posted:", response.data);
+    } catch (error) {
+      console.error("Error posting score:", error);
+    }
   };
 
-  function check_error() {
-    const correct_no = showNumber.toString().split("");
-    const wrong_no = input_num.toString().split("");
-    const max_len = correct_no.length > wrong_no.length ? correct_no.length : wrong_no.length
-    for (let i = 0; i < max_len; i++) {
-      if (correct_no[i] !== wrong_no[i]) {
+
+  const restartGame = () => {
+    setGameOver(false);
+    setLvalue(10);
+    setGameStart(false);
+    setGuessMode(false);
+    setInputNum("");
+  };
+
+  const checkError = () => {
+    const correctNo = showNumber.toString().split("");
+    const wrongNo = inputNum.toString().split("");
+    const maxLength = Math.max(correctNo.length, wrongNo.length);
+    for (let i = 0; i < maxLength; i++) {
+      if (correctNo[i] !== wrongNo[i]) {
         return [
-          wrong_no.slice(0, i).join(""),
-          wrong_no.slice(i, wrong_no.lengt).join(""),
+          wrongNo.slice(0, i).join(""),
+          wrongNo.slice(i, wrongNo.length).join(""),
         ];
       }
     }
-  }
+    return ["", ""];
+  };
 
   return (
     <>
-      {!gameover && (
-        <div
-          className={`game-container ${animate ? "animate-color" : ""}
-           
-      `}
-        >
-          <div className={`${gameStart ? "hide" : "start"}`}>
-            <p>Start The Game?</p>
-            <button className="button-49" onClick={handleClick}>
-              START
-            </button>
-          </div>
+      {!gameOver ? (
+        <div className={`game-container ${animate ? "animate-color" : ""}`}>
+          {!gameStart && (
+            <div className="start">
+              <p>Start The Game?</p>
+              <button className="button-49" onClick={handleClick}>
+                START
+              </button>
+            </div>
+          )}
 
-          {loadingber && (
+          {loading && (
             <>
               <div className="the-number">
                 <p>{showNumber}</p>
@@ -110,39 +128,38 @@ const Main = () => {
 
           {guessMode && (
             <div className="the-input">
-              <p className="level-counter">Level: {showNumber.toString().length}</p>
+              <p className="level-counter">
+                Level: {showNumber.toString().length}
+              </p>
               <input
                 ref={inputRef}
                 type="number"
                 placeholder="What was the number?"
-                value={input_num}
-                onChange={(e) => setInput_num(e.target.value)}
+                value={inputNum}
+                onChange={(e) => setInputNum(e.target.value)}
                 onKeyPress={(e) => {
                   if (e.key === "Enter") handleNewNumberClick();
                 }}
               />
-
-              <button class="button-37" onClick={handleNewNumberClick}>
+              <button className="button-37" onClick={handleNewNumberClick}>
                 Check
               </button>
             </div>
           )}
         </div>
-      )}
-
-      {gameover && (
+      ) : (
         <div className="game-container wrong-color">
           <div className="game-over">
             <p className="score-board">The number was</p>
             <p className="score">{showNumber}</p>
             <p className="score-board score-boardc">Your answer</p>
             <div className="correction">
-              <p className="score"> {check_error()[0]}</p>
-              <s>{check_error()[1]}</s>
+              <p className="score">{checkError()[0]}</p>
+              <s>{checkError()[1]}</s>
             </div>
             <p className="score-board">Your Score</p>
-            <p className="score">{showNumber.toString().length - 1}</p>
-            <button className="button-52" onClick={restart_game}>
+            <p className="score">{score}</p>
+            <button className="button-52" onClick={restartGame}>
               RESTART
             </button>
           </div>
