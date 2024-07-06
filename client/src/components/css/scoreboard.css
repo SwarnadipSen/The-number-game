@@ -1,0 +1,79 @@
+.score-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.statistics {
+    flex: 1.5;
+    padding: 30px;
+    min-width: 400px;
+}
+
+.stats{
+  min-width: 400px;
+  height: 400px;
+}
+
+
+.score-borad {
+  flex: 1;
+  padding: 30px;
+  min-width: 200px;
+  width: 100%;
+}
+
+
+
+.titles {
+
+  font-size: 25px;
+  padding: 10px;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.score-table {
+  width: 100%;
+  
+}
+
+
+
+
+.score-borad table {
+  border-collapse: collapse;
+}
+
+.score-borad th, td {
+  padding: 10px;
+  border: 1px dashed; /* Add inside borders */
+}
+.score-borad table tr:first-child th {
+  border-top: none; /* Remove top border of the first row */
+}
+.score-borad table tr:last-child td {
+  border-bottom: none; /* Remove bottom border of the last row */
+}
+.score-borad table tr th:first-child,
+.score-borad table tr td:first-child {
+  border-left: none; /* Remove left border of the first column */
+}
+.score-borad table tr th:last-child,
+.score-borad table tr td:last-child {
+  border-right: none; /* Remove right border of the last column */
+}
+
+.score-borad th:nth-child(1), td:nth-child(1) {
+  width: 10%; /* Width of the first column */
+  text-align: center; 
+
+}
+.score-borad th:nth-child(2), td:nth-child(2) {
+  width: 70%; /* Width of the second column */
+  font-weight: bold;
+}
+.score-borad th:nth-child(3), td:nth-child(3) {
+  width: 20%; /* Width of the third column */
+  text-align: center; 
+
+}

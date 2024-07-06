@@ -5,7 +5,7 @@ const Main = () => {
   const [animate, setAnimate] = useState(false);
   const [gameStart, setGameStart] = useState(false);
   const [showNumber, setShowNumber] = useState(0);
-  const [lvalue, setLvalue] = useState(100);
+  const [lvalue, setLvalue] = useState(10);
 
   const [loadingber, setLoadingber] = useState(false);
   const [input_num, setInput_num] = useState("");
@@ -58,7 +58,7 @@ const Main = () => {
     }
   };
 
-  const restart = () => {
+  const restart_game = () => {
     setGameover(false);
     setLvalue(10);
     setGameStart(false);
@@ -69,8 +69,8 @@ const Main = () => {
   function check_error() {
     const correct_no = showNumber.toString().split("");
     const wrong_no = input_num.toString().split("");
-
-    for (let i = 0; i < correct_no.length; i++) {
+    const max_len = correct_no.length > wrong_no.length ? correct_no.length : wrong_no.length
+    for (let i = 0; i < max_len; i++) {
       if (correct_no[i] !== wrong_no[i]) {
         return [
           wrong_no.slice(0, i).join(""),
@@ -96,14 +96,21 @@ const Main = () => {
           </div>
 
           {loadingber && (
-            <div className="the-number">
-              <p>{showNumber}</p>
-              <div className="loading"></div>
-            </div>
+            <>
+              <div className="the-number">
+                <p>{showNumber}</p>
+              </div>
+              <div className="loading-container">
+                <div className="loading-box">
+                  <div className="loading"></div>
+                </div>
+              </div>
+            </>
           )}
 
           {guessMode && (
             <div className="the-input">
+              <p className="level-counter">Level: {showNumber.toString().length}</p>
               <input
                 ref={inputRef}
                 type="number"
@@ -135,7 +142,7 @@ const Main = () => {
             </div>
             <p className="score-board">Your Score</p>
             <p className="score">{showNumber.toString().length - 1}</p>
-            <button className="button-52" onClick={restart}>
+            <button className="button-52" onClick={restart_game}>
               RESTART
             </button>
           </div>
